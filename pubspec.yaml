@@ -21,5 +21,6 @@ flutter:
       android:
         package: com.flutterbeacon
         pluginClass: FlutterBeaconPlugin
+        fileName: FlutterBeaconPlugin.kt
       ios:
         pluginClass: FlutterBeaconPlugin
