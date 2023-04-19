@@ -21,15 +21,15 @@ import java.lang.ref.WeakReference;
 
 class FlutterPlatform {
   private final WeakReference<Activity> activityWeakReference;
-  
+
   FlutterPlatform(Activity activity) {
     activityWeakReference = new WeakReference<>(activity);
   }
-  
+
   private Activity getActivity() {
     return activityWeakReference.get();
   }
-  
+
   void openLocationSettings() {
     Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -84,11 +84,11 @@ class FlutterPlatform {
 
     return (adapter != null) && (adapter.isEnabled());
   }
-  
+
   boolean isBroadcastSupported() {
     return BeaconTransmitter.checkTransmissionSupported(getActivity()) == 0;
   }
-  
+
   boolean shouldShowRequestPermissionRationale(String permission) {
     return ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), permission);
   }
