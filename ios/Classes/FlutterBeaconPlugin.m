@@ -287,7 +287,13 @@
     if (!self.locationManager) {
         // initialize location manager if it itsn't
         self.locationManager = [[CLLocationManager alloc] init];
+		self.locationManager.activityType = CLActivityTypeAutomotiveNavigation;
+		self.locationManager.allowsBackgroundLocationUpdates = true;
+		self.locationManager.pausesLocationUpdatesAutomatically = false;
+		self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+		self.locationManager.distanceFilter = kCLDistanceFilterNone;
         self.locationManager.delegate = self;
+		[self.locationManager startUpdatingLocation];
     }
 }
 
@@ -506,6 +512,7 @@
             if (self.flutterEventSinkAuthorization) {
                 self.flutterEventSinkAuthorization(@"WHEN_IN_USE");
             }
+		    [self.locationManager requestAlwaysAuthorization];
             // manage scanning
             break;
         case kCLAuthorizationStatusDenied:
