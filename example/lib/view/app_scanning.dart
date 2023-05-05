@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter_beacon/flutter_beacon.dart';
 import 'package:flutter_beacon_example/controller/requirement_state_controller.dart';
+import 'package:flutter_beacon_example/services/notification_service.dart';
 import 'package:get/get.dart';
 
 class TabScanning extends StatefulWidget {
@@ -50,8 +51,8 @@ class _TabScanningState extends State<TabScanning> {
         proximityUUID: 'CB10023F-A318-3394-4199-A8730C7C1AEC',
       ),
       Region(
-        identifier: 'BeaconType2',
-        proximityUUID: '6a84c716-0f2a-1ce9-f210-6a63bd873dd9',
+        identifier: 'Mila',
+        proximityUUID: '00112233-4455-6677-8899-AABBCCDDEEFF',
       ),
     ];
 
@@ -72,6 +73,7 @@ class _TabScanningState extends State<TabScanning> {
           _regionBeacons.values.forEach((list) {
             _beacons.addAll(list);
           });
+          _checkForNewBeaconDetection(_beacons);
           _beacons.sort(_compareParameters);
         });
       }
@@ -99,6 +101,18 @@ class _TabScanningState extends State<TabScanning> {
     }
 
     return compare;
+  }
+
+  _checkForNewBeaconDetection(List<Beacon> beacons) {
+    final beaconCount = beacons.map((e) => e.proximityUUID).length;
+    if (controller.hasNewBeaconDetected(beaconCount) &&
+        controller.isAppInBackground) {
+      NotificationService().showNotification(
+        title: '📡 A New Beacon Detected 📡',
+        body: 'Sample',
+      );
+    }
+    controller.updateDetectedBeacon(beaconCount);
   }
 
   @override

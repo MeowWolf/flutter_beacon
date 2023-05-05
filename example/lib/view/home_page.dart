@@ -82,6 +82,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     } else if (state == AppLifecycleState.paused) {
       _streamBluetooth?.pause();
     }
+    controller.updateAppState(state == AppLifecycleState.paused);
   }
 
   @override

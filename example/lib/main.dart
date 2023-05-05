@@ -1,11 +1,41 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_beacon_example/controller/requirement_state_controller.dart';
+import 'package:flutter_beacon_example/services/notification_service.dart';
 import 'package:flutter_beacon_example/view/home_page.dart';
 import 'package:get/get.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  _requestPermissions();
+  NotificationService().initNotification();
   runApp(MainApp());
+}
+
+Future<void> _requestPermissions() async {
+  if (Platform.isIOS || Platform.isMacOS) {
+    await FlutterLocalNotificationsPlugin()
+        .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>()
+        ?.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+    await FlutterLocalNotificationsPlugin()
+        .resolvePlatformSpecificImplementation<
+            MacOSFlutterLocalNotificationsPlugin>()
+        ?.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+  } else if (Platform.isAndroid) {
+    final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
+        FlutterLocalNotificationsPlugin().resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+  }
 }
 
 class MainApp extends StatelessWidget {
