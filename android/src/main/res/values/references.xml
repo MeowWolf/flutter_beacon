@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <item name="icon_beacon_notification" type="drawable">@android:drawable/ic_menu_week</item>
+</resources>
