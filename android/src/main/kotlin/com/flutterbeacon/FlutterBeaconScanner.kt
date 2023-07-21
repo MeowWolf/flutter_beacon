@@ -20,6 +20,7 @@ internal class FlutterBeaconScanner(
     var eventSinkMonitoring: EventSink? = null
     private var regionRanging: ArrayList<Region>? = null
     private var regionMonitoring: ArrayList<Region>? = null
+    private var isInitialized = false
 
 
     private fun startService(key: Long) {
@@ -42,6 +43,7 @@ internal class FlutterBeaconScanner(
     }
 
     private fun startRanging(o: Any, eventSink: EventSink) {
+        initService()
         if (o is List<*>) {
             if (regionRanging == null) {
                 regionRanging = ArrayList()
@@ -83,6 +85,7 @@ internal class FlutterBeaconScanner(
 
     private fun startMonitoring(o: Any, eventSink: EventSink) {
         Log.d(TAG, "START MONITORING=$o")
+        initService()
         if (o is List<*>) {
             if (regionMonitoring == null) {
                 regionMonitoring = ArrayList()
@@ -128,10 +131,13 @@ internal class FlutterBeaconScanner(
         }
     }
 
-    init {
-        val key = Calendar.getInstance().timeInMillis
-        scannerMap[key] = WeakReference(this)
-        startService(key)
+    private fun initService() {
+        if (!isInitialized) {
+            isInitialized = true
+            val key = Calendar.getInstance().timeInMillis
+            scannerMap[key] = WeakReference(this)
+            startService(key)
+        }
     }
 
     companion object {
