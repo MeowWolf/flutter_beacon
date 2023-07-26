@@ -1,3 +1,5 @@
+import java.io.File
+
 group 'com.flutterbeacon'
 version '1.0-SNAPSHOT'
 buildscript {
@@ -13,7 +15,9 @@ buildscript {
 }
 rootProject.allprojects {
     repositories {
-        mavenLocal()
+        maven{
+            url "file:/${rootDir}/../../android/repository"
+        }
         google()
         mavenCentral()
     }
@@ -34,7 +38,5 @@ android {
 
 dependencies {
     api 'androidx.legacy:legacy-support-v4:1.0.0'
-    //api 'org.altbeacon:android-beacon-library:2.16.3'
-    //api "org.altbeacon:android-beacon-library:2.17.1"
-    api fileTree(dir: "libs", include: ["*.aar"])
+    api "org.altbeacon:android-beacon-library:2.20.0"
 }
