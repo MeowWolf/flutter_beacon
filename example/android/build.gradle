@@ -11,12 +11,20 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
-
+def githubProperties = new Properties()
+def localCredentials = rootProject.file("${projectDir}/../../android/github.properties")
+if (localCredentials.exists()) {
+    githubProperties.load(new FileInputStream(localCredentials))
+}
 allprojects {
     repositories {
-        flatDir {
-            //directory name
-            dirs 'libs'
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/humblerookie/android-beacon-library")
+            credentials {
+                username = githubProperties['gpr.usr'] ?: System.getenv("GPR_USER")
+                password = githubProperties['gpr.key'] ?: System.getenv("GPR_TOKEN")
+            }
         }
         google()
         mavenCentral()
