@@ -18,10 +18,8 @@ class MainApp extends StatelessWidget {
 
     return GetMaterialApp(
       theme: ThemeData(
-        brightness: Brightness.light,
         primarySwatch: primary,
         appBarTheme: themeData.appBarTheme.copyWith(
-          brightness: Brightness.light,
           elevation: 0.5,
           color: Colors.white,
           actionsIconTheme: themeData.primaryIconTheme.copyWith(
@@ -30,15 +28,9 @@ class MainApp extends StatelessWidget {
           iconTheme: themeData.primaryIconTheme.copyWith(
             color: primary,
           ),
-          textTheme: themeData.primaryTextTheme.copyWith(
-            headline6: themeData.textTheme.headline6?.copyWith(
-              color: primary,
-            ),
-          ),
         ),
       ),
       darkTheme: ThemeData(
-        brightness: Brightness.dark,
         primarySwatch: primary,
       ),
       home: HomePage(),

@@ -1,7 +1,6 @@
-import java.io.File
-
 group 'com.flutterbeacon'
 version '1.0-SNAPSHOT'
+
 buildscript {
     repositories {
         google()
@@ -10,12 +9,25 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:7.4.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0"
     }
+}
+def githubProperties = new Properties()
+def localCredentials = rootProject.file("github.properties")
+if (localCredentials.exists()) {
+    githubProperties.load(new FileInputStream(localCredentials))
 }
 
 rootProject.allprojects {
     repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/humblerookie/android-beacon-library")
+            credentials {
+                username = githubProperties['gpr.usr'] ?: System.getenv("GPR_USER")
+                password = githubProperties['gpr.key'] ?: System.getenv("GPR_TOKEN")
+            }
+        }
         google()
         mavenCentral()
     }
@@ -36,5 +48,5 @@ android {
 
 dependencies {
     api 'androidx.legacy:legacy-support-v4:1.0.0'
-    compileOnly fileTree(dir: 'libs', include: ['*.aar'])
+    api 'org.altbeacon:android-beacon-library:2.20.0'
 }
