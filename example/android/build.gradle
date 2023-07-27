@@ -1,3 +1,4 @@
+import java.io.File
 buildscript {
     ext.kotlin_version = '1.7.10'
     repositories {
@@ -13,6 +14,10 @@ buildscript {
 
 allprojects {
     repositories {
+        flatDir {
+            //directory name
+            dirs 'libs'
+        }
         google()
         mavenCentral()
     }

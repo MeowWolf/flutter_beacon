@@ -13,22 +13,9 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21"
     }
 }
-def githubProperties = new Properties()
-def localCredentials = rootProject.file("github.properties")
-if (localCredentials.exists()) {
-    githubProperties.load(new FileInputStream(localCredentials))
-}
 
 rootProject.allprojects {
     repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/humblerookie/android-beacon-library")
-            credentials {
-                username = githubProperties['gpr.usr'] ?: System.getenv("GITHUB_USER")
-                password = githubProperties['gpr.key'] ?: System.getenv("GITHUB_TOKEN")
-            }
-        }
         google()
         mavenCentral()
     }
@@ -49,5 +36,5 @@ android {
 
 dependencies {
     api 'androidx.legacy:legacy-support-v4:1.0.0'
-    api "org.altbeacon:android-beacon-library:2.20.0"
+    compileOnly fileTree(dir: 'libs', include: ['*.aar'])
 }
