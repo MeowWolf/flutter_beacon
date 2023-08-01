@@ -5,6 +5,7 @@
 @interface FlutterBeaconPlugin : NSObject<FlutterPlugin>
 
 @property FlutterEventSink flutterEventSinkRanging;
+@property FlutterEventSink flutterEventSinkRangingStatus;
 @property FlutterEventSink flutterEventSinkMonitoring;
 @property FlutterEventSink flutterEventSinkBluetooth;
 @property FlutterEventSink flutterEventSinkAuthorization;
@@ -15,5 +16,5 @@
 - (void) stopRangingBeacon;
 - (void) startMonitoringBeaconWithCall:(id)arguments;
 - (void) stopMonitoringBeacon;
-
+- (void) stopRangingStatusTimer;
 @end
