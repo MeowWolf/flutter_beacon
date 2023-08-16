@@ -18,6 +18,7 @@ part 'beacon/beacon_broadcast.dart';
 part 'beacon/bluetooth_state.dart';
 part 'beacon/monitoring_result.dart';
 part 'beacon/ranging_result.dart';
+part 'beacon/ranging_activity_result.dart';
 part 'beacon/region.dart';
 
 /// Singleton instance for accessing scanning API.
@@ -48,6 +49,11 @@ class FlutterBeacon {
   /// for bluetooth state changed.
   static const EventChannel _authorizationStatusChangedChannel =
       EventChannel('flutter_authorization_status_changed');
+  
+  /// Event Channel used to communicate to native code to checking
+  /// for bluetooth state changed.
+  static const EventChannel _rangingActivityChannel =
+      EventChannel('flutter_beacon/beacon_activity_channel');
 
   /// This information does not change from call to call. Cache it.
   Stream<BluetoothState>? _onBluetoothState;
@@ -210,6 +216,16 @@ class FlutterBeacon {
         .receiveBroadcastStream(list)
         .map((dynamic event) => RangingResult.from(event));
     return onRanging;
+  }
+
+  /// Start monitoring ranging status.
+  ///
+  /// This will fires [RangingActivityResult] in every 4 seconds.
+  Stream<RangingActivityResult> rangingStatus() {
+    final Stream<RangingActivityResult> rangingActivity = _rangingActivityChannel
+        .receiveBroadcastStream()
+        .map((dynamic event) => RangingActivityResult.from(event));
+    return rangingActivity;
   }
 
   /// Start monitoring iBeacons with defined [List] of [Region]s.

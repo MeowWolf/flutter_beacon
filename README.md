@@ -146,7 +146,7 @@ _streamMonitoring.cancel();
 ## Under the hood
 
 * iOS uses native Framework [CoreLocation](https://developer.apple.com/documentation/corelocation/)
-* Android uses the [Android-Beacon-Library](https://github.com/AltBeacon/android-beacon-library) ([Apache License 2.0](https://github.com/AltBeacon/android-beacon-library/blob/master/LICENSE))  
+* Android uses the [Android-Beacon-Library](https://github.com/humblerookie/android-beacon-library) ([Apache License 2.0](https://github.com/AltBeacon/android-beacon-library/blob/master/LICENSE))  
 
 # Author
 

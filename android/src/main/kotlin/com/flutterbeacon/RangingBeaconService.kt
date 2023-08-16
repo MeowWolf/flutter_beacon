@@ -201,9 +201,9 @@ class RangingBeaconService : Service() {
                 )
             }
         val notification: Notification = NotificationCompat.Builder(this, beaconChannel)
-            .setContentTitle("Beacon")
-            .setContentText("Detecting Beacons")
-            .setSmallIcon(drawable.ic_menu_week)
+            .setContentTitle(getString(R.string.beacon_title))
+            .setContentText(getString(R.string.beacon_description))
+            .setSmallIcon(R.drawable.icon_beacon_notification)
             .setContentIntent(pendingIntent)
             .build()
         startForeground(BEACON_NOTIFICATION_ID, notification)
