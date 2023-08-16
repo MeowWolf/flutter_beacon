@@ -24,9 +24,11 @@ class BeaconEventChannel : StreamHandler, BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         intent?.run {
             eventSink?.success(
-                getBooleanExtra(
-                    CycledLeScanner.EXTRA_IS_SUCCESS,
-                    false
+                mapOf<Any, Any>(
+                    KEY to getBooleanExtra(
+                        CycledLeScanner.EXTRA_IS_SUCCESS,
+                        false
+                    )
                 )
             )
         }
@@ -34,7 +36,8 @@ class BeaconEventChannel : StreamHandler, BroadcastReceiver() {
 
     companion object {
         private const val tag = "BeaconEvent"
-        private const val BEACON_SCAN_ACTIVITY = "meow_wolf/beacon_activity_channel"
+        private const val KEY = "ranging_status"
+        private const val BEACON_SCAN_ACTIVITY = "flutter_beacon/beacon_activity_channel"
     }
 
     val action = CycledLeScanner.ACTION_SCAN_RUN

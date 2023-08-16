@@ -79,7 +79,7 @@
 		initWithFlutterBeaconPlugin:instance];
 
   FlutterEventChannel *streamChannelRangingStatus = [FlutterEventChannel
-	  eventChannelWithName:@"meow_wolf/beacon_activity_channel"
+	  eventChannelWithName:@"flutter_beacon/beacon_activity_channel"
 		   binaryMessenger:[registrar messenger]];
   [streamChannelRangingStatus setStreamHandler:instance.rangingStatusHandler];
 }

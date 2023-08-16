@@ -53,7 +53,7 @@ class FlutterBeacon {
   /// Event Channel used to communicate to native code to checking
   /// for bluetooth state changed.
   static const EventChannel _rangingActivityChannel =
-      EventChannel('meow_wolf/beacon_activity_channel');
+      EventChannel('flutter_beacon/beacon_activity_channel');
 
   /// This information does not change from call to call. Cache it.
   Stream<BluetoothState>? _onBluetoothState;
