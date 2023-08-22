@@ -279,6 +279,7 @@
   if ([@"close" isEqualToString:call.method]) {
 	[self stopRangingBeacon];
 	[self stopMonitoringBeacon];
+	self.bluetoothManager = nil;
 	result(@(YES));
 	return;
   }
@@ -326,13 +327,10 @@
 }
 
 - (void)initializeCentralManager {
-  if (!self.bluetoothManager) {
-	// initialize central manager if it itsn't
 	self.bluetoothManager = [[CBCentralManager alloc]
 		initWithDelegate:self
 				   queue:nil
 				 options:@{CBCentralManagerOptionShowPowerAlertKey : @0}];
-  }
 }
 
 - (void)initializeLocationManager {
@@ -345,8 +343,8 @@
 	self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
 	self.locationManager.distanceFilter = kCLDistanceFilterNone;
 	self.locationManager.delegate = self;
-	[self.locationManager startUpdatingLocation];
   }
+  [self.locationManager startUpdatingLocation];
 }
 
 - (void)startBroadcast:(id)arguments {
