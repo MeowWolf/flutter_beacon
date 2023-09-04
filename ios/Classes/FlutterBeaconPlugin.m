@@ -552,7 +552,7 @@
 	  break;
 	case kCLAuthorizationStatusAuthorizedAlways:
 	default:
-	  [self.locationManager requestAlwaysAuthorization];
+	  [self.locationManager requestWhenInUseAuthorization];
 	  break;
   }
 }
@@ -571,7 +571,7 @@
 	  if (self.flutterEventSinkAuthorization) {
 		self.flutterEventSinkAuthorization(@"WHEN_IN_USE");
 	  }
-	  [self.locationManager requestAlwaysAuthorization];
+	  [self.locationManager requestWhenInUseAuthorization];
 	  // manage scanning
 	  break;
 	case kCLAuthorizationStatusDenied:
