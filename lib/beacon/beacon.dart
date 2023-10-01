@@ -37,6 +37,9 @@ class Beacon {
   /// The proximity of beacon.
   final Proximity? _proximity;
 
+  /// From iOS this value will be null
+  final String? battery;
+
   /// Create beacon object.
   const Beacon({
     required this.proximityUUID,
@@ -47,6 +50,7 @@ class Beacon {
     this.txPower,
     required this.accuracy,
     Proximity? proximity,
+    this.battery,
   })  : this.rssi = rssi ?? -1,
         this._proximity = proximity;
 
@@ -61,6 +65,7 @@ class Beacon {
           txPower: _parseInt(json['txPower']),
           accuracy: _parseDouble(json['accuracy']),
           proximity: _parseProximity(json['proximity']),
+          battery: _parseProximity(json['battery']),
         );
 
   /// Parsing dynamic data into double.
@@ -141,6 +146,10 @@ class Beacon {
 
     if (macAddress != null) {
       map['macAddress'] = macAddress;
+    }
+
+    if (battery != null) {
+      map['battery'] = battery;
     }
 
     return map;

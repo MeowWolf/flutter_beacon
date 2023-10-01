@@ -43,6 +43,11 @@ class FlutterBeaconUtils {
     map.put("accuracy", String.format(Locale.US, "%.2f", beacon.getDistance()));
     map.put("macAddress", beacon.getBluetoothAddress());
 
+
+   System.out.println("Muneer");
+   System.out.println(beacon.getId3().toString());
+   System.out.println(beacon.getExtraDataFields().toString());
+
     return map;
   }
 
