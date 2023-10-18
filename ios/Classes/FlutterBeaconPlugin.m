@@ -338,7 +338,6 @@
 	// initialize location manager if it itsn't
 	self.locationManager = [[CLLocationManager alloc] init];
 	self.locationManager.activityType = CLActivityTypeAutomotiveNavigation;
-	self.locationManager.allowsBackgroundLocationUpdates = true;
 	self.locationManager.pausesLocationUpdatesAutomatically = false;
 	self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
 	self.locationManager.distanceFilter = kCLDistanceFilterNone;
@@ -386,12 +385,14 @@
 	NSLog(@"START: %@", r);
 	[self.locationManager startRangingBeaconsInRegion:r];
   }
+  self.locationManager.allowsBackgroundLocationUpdates = true;
 }
 
 - (void)stopRangingBeacon {
   for (CLBeaconRegion *region in self.regionRanging) {
 	[self.locationManager stopRangingBeaconsInRegion:region];
   }
+  self.locationManager.allowsBackgroundLocationUpdates = false;
   self.flutterEventSinkRanging = nil;
 }
 
