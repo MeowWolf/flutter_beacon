@@ -3,10 +3,12 @@ package com.flutterbeacon
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.RemoteException
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.flutterbeacon.RangingBeaconService.Companion.instance
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
@@ -44,6 +46,11 @@ class FlutterBeaconPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
     private var eventChannelBluetoothState: EventChannel? = null
     private var eventChannelAuthorizationStatus: EventChannel? = null
     private var context: Context? = null
+
+    private val beaconEventChannel = BeaconEventChannel()
+    private var flutterBeaconNotifyChannel: EventChannel? = null
+    private var broadcastManager: LocalBroadcastManager? = null
+
     override fun onAttachedToEngine(binding: FlutterPluginBinding) {
         flutterPluginBinding = binding
     }
@@ -55,6 +62,10 @@ class FlutterBeaconPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         activityPluginBinding = binding
         setupChannels(flutterPluginBinding!!.binaryMessenger, binding.activity)
+        setupMiscChannels(
+            flutterPluginBinding!!.binaryMessenger,
+            binding.activity.applicationContext
+        )
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
@@ -102,6 +113,18 @@ class FlutterBeaconPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
         eventChannelAuthorizationStatus!!.setStreamHandler(locationAuthorizationStatusStreamHandler)
     }
 
+    private fun setupMiscChannels(messenger: BinaryMessenger, context: Context) {
+        with(EventChannel(messenger, beaconEventChannel.name)) {
+            setStreamHandler(beaconEventChannel)
+            flutterBeaconNotifyChannel = this
+        }
+        broadcastManager = LocalBroadcastManager.getInstance(context)
+        broadcastManager?.registerReceiver(
+            beaconEventChannel,
+            IntentFilter(beaconEventChannel.action)
+        )
+    }
+
     private fun teardownChannels() {
         if (activityPluginBinding != null) {
             activityPluginBinding!!.removeActivityResultListener(this)
@@ -109,17 +132,22 @@ class FlutterBeaconPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
         }
         platform = null
         beaconBroadcast = null
-        channel!!.setMethodCallHandler(null)
-        eventChannel!!.setStreamHandler(null)
-        eventChannelMonitoring!!.setStreamHandler(null)
-        eventChannelBluetoothState!!.setStreamHandler(null)
-        eventChannelAuthorizationStatus!!.setStreamHandler(null)
+        channel?.setMethodCallHandler(null)
+        eventChannel?.setStreamHandler(null)
+        flutterBeaconNotifyChannel?.setStreamHandler(null)
+        eventChannelMonitoring?.setStreamHandler(null)
+        eventChannelBluetoothState?.setStreamHandler(null)
+        eventChannelAuthorizationStatus?.setStreamHandler(null)
         channel = null
         eventChannel = null
         eventChannelMonitoring = null
         eventChannelBluetoothState = null
         eventChannelAuthorizationStatus = null
         activityPluginBinding = null
+        flutterBeaconNotifyChannel = null
+        broadcastManager?.unregisterReceiver(
+            beaconEventChannel,
+        )
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
