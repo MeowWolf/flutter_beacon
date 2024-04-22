@@ -20,7 +20,7 @@ allprojects {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/humblerookie/android-beacon-library")
+            url = uri("https://maven.pkg.github.com/meowwolf/android-beacon-library")
             credentials {
                 username = githubProperties['gpr.usr'] ?: System.getenv("GPR_USER")
                 password = githubProperties['gpr.key'] ?: System.getenv("GPR_TOKEN")
