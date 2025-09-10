@@ -195,7 +195,7 @@ class FlutterBeaconPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
             return
         }
         if (call.method == "authorizationStatus") {
-            result.success(if (platform!!.checkAllPermissions()) "ALLOWED" else "NOT_DETERMINED")
+            result.success(if (platform!!.checkLocationServicesPermission()) "ALLOWED" else "NOT_DETERMINED")
             return
         }
         if (call.method == "checkLocationServicesIfEnabled") {
@@ -213,7 +213,7 @@ class FlutterBeaconPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
             return
         }
         if (call.method == "requestAuthorization") {
-            if (!platform!!.checkAllPermissions()) {
+            if (!platform!!.checkLocationServicesPermission()) {
                 flutterResult = result
                 platform!!.requestAuthorization()
                 return
@@ -307,7 +307,7 @@ class FlutterBeaconPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
     }
 
     private fun initializeAndCheck(result: Result?) {
-        if (platform!!.checkAllPermissions()
+        if (platform!!.checkLocationServicesPermission()
             && platform!!.checkBluetoothIfEnabled()
             && platform!!.checkLocationServicesIfEnabled()
         ) {
@@ -321,7 +321,7 @@ class FlutterBeaconPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
             platform!!.openBluetoothSettings()
             return
         }
-        if (!platform!!.checkAllPermissions()) {
+        if (!platform!!.checkLocationServicesPermission()) {
             platform!!.requestAuthorization()
             return
         }
@@ -360,51 +360,47 @@ class FlutterBeaconPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
         if (requestCode != REQUEST_CODE_LOCATION) {
             return false
         }
-        
-        // Check if all permissions were granted
-        var allPermissionsGranted = true
+        var locationServiceAllowed = false
         if (permissions.size > 0 && grantResults.size > 0) {
-            for (i in grantResults.indices) {
-                if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                    allPermissionsGranted = false
-                    break
+            val permission = permissions[0]
+            if (!platform!!.shouldShowRequestPermissionRationale(permission)) {
+                val grantResult = grantResults[0]
+                if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                    //allowed
+                    locationServiceAllowed = true
+                }
+                if (eventSinkLocationAuthorizationStatus != null) {
+                    // shouldShowRequestPermissionRationale = false, so if access wasn't granted, the user clicked DENY and checked DON'T SHOW AGAIN
+                    eventSinkLocationAuthorizationStatus!!.success(if (locationServiceAllowed) "ALLOWED" else "DENIED")
+                }
+            } else {
+                // shouldShowRequestPermissionRationale = true, so the user has clicked DENY but not DON'T SHOW AGAIN, we can possibly prompt again
+                if (eventSinkLocationAuthorizationStatus != null) {
+                    eventSinkLocationAuthorizationStatus!!.success("NOT_DETERMINED")
                 }
             }
         } else {
-            allPermissionsGranted = false
-        }
-        
-        // Use the platform's checkAllPermissions method for final verification
-        val servicesAllowed = platform!!.checkAllPermissions()
-        
-        if (eventSinkLocationAuthorizationStatus != null) {
-            if (allPermissionsGranted && servicesAllowed) {
-                eventSinkLocationAuthorizationStatus!!.success("ALLOWED")
-            } else if (permissions.size > 0 && !platform!!.shouldShowRequestPermissionRationale(permissions[0])) {
-                // User clicked DENY and checked DON'T SHOW AGAIN
-                eventSinkLocationAuthorizationStatus!!.success("DENIED")
-            } else {
-                // User clicked DENY but not DON'T SHOW AGAIN, we can possibly prompt again
+            // Permission request was cancelled (another requestPermission active, other interruptions), we can possibly prompt again
+            if (eventSinkLocationAuthorizationStatus != null) {
                 eventSinkLocationAuthorizationStatus!!.success("NOT_DETERMINED")
             }
         }
-        
         if (flutterResult != null) {
-            if (servicesAllowed) {
+            if (locationServiceAllowed) {
                 flutterResult!!.success(true)
             } else {
-                flutterResult!!.error("Beacon", "required permissions not granted", null)
+                flutterResult!!.error("Beacon", "location services not allowed", null)
             }
             flutterResult = null
         }
-        return servicesAllowed
+        return locationServiceAllowed
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?): Boolean {
         val bluetoothEnabled =
             requestCode == REQUEST_CODE_BLUETOOTH && resultCode == Activity.RESULT_OK
         if (bluetoothEnabled) {
-            if (!platform!!.checkAllPermissions()) {
+            if (!platform!!.checkLocationServicesPermission()) {
                 platform!!.requestAuthorization()
             } else {
                 if (flutterResultBluetooth != null) {
