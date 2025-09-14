@@ -23,7 +23,6 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.ActivityResultListener
-import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener
 import org.altbeacon.beacon.BeaconManager
 import org.altbeacon.beacon.BeaconParser
@@ -53,6 +52,7 @@ class FlutterBeaconPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
 
     override fun onAttachedToEngine(binding: FlutterPluginBinding) {
         flutterPluginBinding = binding
+        context = binding.applicationContext
     }
 
     override fun onDetachedFromEngine(binding: FlutterPluginBinding) {
@@ -61,6 +61,7 @@ class FlutterBeaconPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         activityPluginBinding = binding
+        context = binding.activity.applicationContext
         setupChannels(flutterPluginBinding!!.binaryMessenger, binding.activity)
         setupMiscChannels(
             flutterPluginBinding!!.binaryMessenger,
@@ -145,9 +146,7 @@ class FlutterBeaconPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
         eventChannelAuthorizationStatus = null
         activityPluginBinding = null
         flutterBeaconNotifyChannel = null
-        broadcastManager?.unregisterReceiver(
-            beaconEventChannel,
-        )
+        broadcastManager?.unregisterReceiver(beaconEventChannel)
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
@@ -175,6 +174,7 @@ class FlutterBeaconPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
             } catch (e: RemoteException) {
                 result.success(false)
             }
+            return
         }
         if (call.method == "setBetweenScanPeriod") {
             val betweenScanPeriod = call.argument<Int>("betweenScanPeriod")!!
@@ -185,6 +185,7 @@ class FlutterBeaconPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
             } catch (e: RemoteException) {
                 result.success(false)
             }
+            return
         }
         if (call.method == "setLocationAuthorizationTypeDefault") {
             // Android does not have the concept of "requestWhenInUse" and "requestAlways" like iOS does,
@@ -311,10 +312,8 @@ class FlutterBeaconPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
             && platform!!.checkBluetoothIfEnabled()
             && platform!!.checkLocationServicesIfEnabled()
         ) {
-            if (result != null) {
-                result.success(true)
-                return
-            }
+            result?.success(true)
+            return
         }
         flutterResult = result
         if (!platform!!.checkBluetoothIfEnabled()) {
@@ -361,17 +360,18 @@ class FlutterBeaconPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
             return false
         }
         var locationServiceAllowed = false
-        if (permissions.size > 0 && grantResults.size > 0) {
+        if (permissions.isNotEmpty() && grantResults.isNotEmpty()) {
             val permission = permissions[0]
             if (!platform!!.shouldShowRequestPermissionRationale(permission)) {
                 val grantResult = grantResults[0]
                 if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                    //allowed
                     locationServiceAllowed = true
                 }
                 if (eventSinkLocationAuthorizationStatus != null) {
                     // shouldShowRequestPermissionRationale = false, so if access wasn't granted, the user clicked DENY and checked DON'T SHOW AGAIN
-                    eventSinkLocationAuthorizationStatus!!.success(if (locationServiceAllowed) "ALLOWED" else "DENIED")
+                    eventSinkLocationAuthorizationStatus!!.success(
+                        if (locationServiceAllowed) "ALLOWED" else "DENIED"
+                    )
                 }
             } else {
                 // shouldShowRequestPermissionRationale = true, so the user has clicked DENY but not DON'T SHOW AGAIN, we can possibly prompt again
@@ -428,14 +428,5 @@ class FlutterBeaconPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
             .setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24")
         const val REQUEST_CODE_LOCATION = 1234
         const val REQUEST_CODE_BLUETOOTH = 5678
-
-        @JvmStatic
-        fun registerWith(registrar: Registrar) {
-            val instance = FlutterBeaconPlugin()
-            instance.setupChannels(registrar.messenger(), registrar.activity())
-            instance.context = registrar.activity()!!.applicationContext
-            registrar.addActivityResultListener(instance)
-            registrar.addRequestPermissionsResultListener(instance)
-        }
     }
 }
